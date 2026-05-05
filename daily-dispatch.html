@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Daily Dispatch">
+  <meta name="theme-color" content="#09090e">
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Daily%20Dispatch%22%2C%22short_name%22%3A%22Dispatch%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2309090e%22%2C%22theme_color%22%3A%22%2309090e%22%2C%22start_url%22%3A%22.%22%7D">
+  <title>Daily Dispatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090e;
+      --surface: #111118;
+      --text: #e8e8f0;
+      --muted: rgba(232,232,240,0.35);
+      --very-muted: rgba(232,232,240,0.15);
+      --border: rgba(232,232,240,0.08);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html { background: var(--bg); }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', 'Courier New', monospace;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: calc(var(--safe-top) + 2.25rem) 1.25rem calc(var(--safe-bottom) + 3rem);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .inner { max-width: 600px; margin: 0 auto; }
+
+    /* Header */
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(3rem, 14vw, 4.5rem);
+      font-weight: 600;
+      line-height: 0.92;
+      color: #f0f0f8;
+      letter-spacing: 0.02em;
+    }
+
+    .date-line {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--very-muted);
+      margin-top: 0.65rem;
+      margin-bottom: 2.25rem;
+    }
+
+    /* Cards */
+    .cards { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; }
+
+    .card {
+      background: var(--surface);
+      border-radius: 10px;
+      border-top: 2.5px solid transparent;
+      overflow: hidden;
+    }
+
+    .card-body { padding: 1.25rem 1.25rem 1rem; }
+
+    .card-label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 0.65rem;
+    }
+
+    .card-content {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1.3rem, 4.5vw, 1.55rem);
+      font-style: italic;
+      line-height: 1.5;
+      color: var(--text);
+      transition: opacity 0.2s ease;
+      min-height: 3rem;
+    }
+
+    .card-content.fading { opacity: 0; }
+
+    .reroll-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      border: none;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 44px;
+    }
+
+    .reroll-btn:hover, .reroll-btn:active {
+      background: rgba(232,232,240,0.05);
+      color: var(--text);
+    }
+
+    /* Prompt block */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    .prompt-block {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 1.25rem;
+      border-left: 2px solid var(--very-muted);
+      margin-bottom: 1.75rem;
+    }
+
+    .prompt-eyebrow {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .prompt-text {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: clamp(1rem, 3.5vw, 1.1rem);
+      font-style: italic;
+      color: rgba(232,232,240,0.6);
+      line-height: 1.75;
+      transition: opacity 0.2s ease;
+    }
+
+    .prompt-text.fading { opacity: 0; }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .shuffle-btn {
+      background: transparent;
+      border: 1px solid var(--very-muted);
+      color: var(--muted);
+      font-family: 'DM Mono', 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 13px 26px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 44px;
+    }
+
+    .shuffle-btn:hover, .shuffle-btn:active {
+      border-color: rgba(232,232,240,0.5);
+      color: var(--text);
+    }
+
+    .footer-note {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(232,232,240,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="inner">
+    <header>
+      <p class="eyebrow">✦ Writing prompt generator</p>
+      <h1>Daily<br>Dispatch</h1>
+      <p class="date-line" id="date-line"></p>
+    </header>
+
+    <div class="cards" id="cards"></div>
+
+    <hr class="divider">
+
+    <div class="prompt-block">
+      <p class="prompt-eyebrow">Your prompt</p>
+      <p class="prompt-text" id="prompt-text"></p>
+    </div>
+
+    <div class="footer">
+      <button class="shuffle-btn" onclick="rerollAll()">↻ Shuffle all</button>
+      <span class="footer-note">Resets each morning</span>
+    </div>
+  </div>
+
+  <script>
+    const SETTINGS = [
+      "a 24-hour laundromat during a blackout",
+      "an underground greenhouse beneath a city",
+      "a lighthouse at the edge of a fog that never clears",
+      "a hotel room that keeps appearing in strangers' photos",
+      "a dive bar on the last road before the state line",
+      "an abandoned amusement park being slowly reclaimed by vines",
+      "a midnight Amtrak train through the high desert",
+      "a cathedral-turned-nightclub on a Tuesday",
+      "a research station inside a cave with bioluminescent walls",
+      "a farmers market that only opens in the rain",
+      "a rooftop garden tended by someone who won't say their name",
+      "the basement of a library that doesn't appear on any floor plan",
+      "a floating market at the edge of a bayou",
+      "a seaside town that exists on maps but not in photographs",
+      "backstage on opening night of a show no one expected to sell out",
+      "an all-night diner at the end of a service road",
+      "a community garden in a city that's slowly sinking",
+      "a monastery converted into artist studios",
+      "the waiting room of a veterinary clinic at 3am",
+      "a pawn shop that specializes in things people meant to keep",
+      "a campground with no phone reception and no explanation for why",
+      "the deck of a ferry crossing a lake that locals avoid naming",
+      "a rented storage unit full of someone else's life",
+      "an old drive-in theater showing one film, on loop",
+      "a bed and breakfast run entirely by one very old woman who knows everyone's name"
+    ];
+
+    const PHRASES = [
+      "borrowed light", "the second-to-last", "hollow season", "wolf hour",
+      "the one who stayed", "salt water logic", "the long goodbye", "paper crown",
+      "glass teeth", "tender mercy", "threshold", "ghost frequency",
+      "the color of almost", "last rites", "fever logic", "beautiful damage",
+      "something borrowed", "one good reason", "the softest lie", "unfinished",
+      "the door that wasn't there yesterday", "what the water carries",
+      "middle distance", "a trick of the light", "the wrong kind of careful"
+    ];
+
+    const SITUATIONS = [
+      "stuck in an elevator with a stranger who keeps almost saying something",
+      "waiting for a flight that keeps getting delayed with no explanation",
+      "taking an exam for a class they don't remember signing up for",
+      "caught in the middle of someone else's lie",
+      "inheriting a house from someone they barely knew",
+      "saying something they immediately know they can't take back",
+      "finding a letter addressed to them that was never opened",
+      "being the last one at a party, helping the host clean up",
+      "receiving news that changes the shape of everything that came before it",
+      "being recognized by a stranger who's completely certain they've met",
+      "missing their stop and ending up somewhere they've never been",
+      "witnessing something they were clearly never meant to see",
+      "being asked to keep a secret that grows heavier by the day",
+      "returning to a place they swore they'd never go back to",
+      "caring for a plant that belonged to someone who died",
+      "running into an ex in a grocery store, both with full carts",
+      "watching someone they love lie to someone else, and saying nothing",
+      "discovering the story they've always told about themselves isn't quite true",
+      "applying for something they're almost certain they won't get",
+      "agreeing to something before fully understanding what it involves",
+      "realizing mid-conversation they're not who the other person thinks they are",
+      "packing someone else's belongings into boxes"
+    ];
+
+    const GENRES = [
+      "gothic romance", "literary horror", "magical realism", "noir thriller",
+      "surrealist comedy", "speculative fiction", "Southern Gothic",
+      "psychological drama", "fabulist fairy tale", "cosmic horror",
+      "dark comedy", "historical fiction with an unreliable narrator",
+      "solarpunk", "folk horror", "experimental literary fiction",
+      "domestic noir", "biopunk", "slipstream", "New Weird", "elegiac realism"
+    ];
+
+    const CARDS_CONFIG = [
+      { key: "setting",   label: "Setting",        items: SETTINGS,   accent: "#e8196a", glow: "rgba(232,25,106,0.1)",  idx: 1 },
+      { key: "phrase",    label: "Word or Phrase",  items: PHRASES,    accent: "#f0c030", glow: "rgba(240,192,48,0.1)",  idx: 2 },
+      { key: "situation", label: "Situation",       items: SITUATIONS, accent: "#00c8d4", glow: "rgba(0,200,212,0.1)",   idx: 3 },
+      { key: "genre",     label: "Genre",           items: GENRES,     accent: "#98e040", glow: "rgba(152,224,64,0.1)",  idx: 4 },
+    ];
+
+    function mulberry32(seed) {
+      let a = seed | 0;
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+
+    function pick(arr, seed) {
+      return arr[Math.floor(mulberry32(seed) * arr.length)];
+    }
+
+    function dateSeed() {
+      const d = new Date();
+      return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+    }
+
+    const base = dateSeed();
+    const offsets = { setting: 0, phrase: 0, situation: 0, genre: 0 };
+
+    function getSeed(card) {
+      return base * 37 + card.idx * 100003 + offsets[card.key] * 9973;
+    }
+
+    function getContent(card) {
+      return pick(card.items, getSeed(card));
+    }
+
+    function updatePrompt(fade) {
+      const pt = document.getElementById('prompt-text');
+      if (fade) pt.classList.add('fading');
+      const setting = getContent(CARDS_CONFIG[0]);
+      const phrase  = getContent(CARDS_CONFIG[1]);
+      const sit     = getContent(CARDS_CONFIG[2]);
+      const genre   = getContent(CARDS_CONFIG[3]);
+      setTimeout(() => {
+        pt.textContent = `Write a ${genre} story about a character ${sit}, set in ${setting}. Somewhere in the piece, use: \u201c${phrase}.\u201d`;
+        pt.classList.remove('fading');
+      }, fade ? 220 : 0);
+    }
+
+    function reroll(key) {
+      const el = document.getElementById('content-' + key);
+      el.classList.add('fading');
+      setTimeout(() => {
+        offsets[key]++;
+        el.textContent = getContent(CARDS_CONFIG.find(c => c.key === key));
+        el.classList.remove('fading');
+        updatePrompt(true);
+      }, 220);
+    }
+
+    function rerollAll() {
+      CARDS_CONFIG.forEach(card => {
+        document.getElementById('content-' + card.key).classList.add('fading');
+      });
+      setTimeout(() => {
+        CARDS_CONFIG.forEach(card => {
+          offsets[card.key]++;
+          const el = document.getElementById('content-' + card.key);
+          el.textContent = getContent(card);
+          el.classList.remove('fading');
+        });
+        updatePrompt(true);
+      }, 220);
+    }
+
+    // Init
+    document.getElementById('date-line').textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric'
+    });
+
+    const cardsEl = document.getElementById('cards');
+    CARDS_CONFIG.forEach(card => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.style.borderTopColor = card.accent;
+      div.style.boxShadow = `0 0 28px ${card.glow}`;
+      div.innerHTML = `
+        <div class="card-body">
+          <div class="card-label" style="color:${card.accent}">${card.label}</div>
+          <div class="card-content" id="content-${card.key}">${getContent(card)}</div>
+        </div>
+        <button class="reroll-btn" onclick="reroll('${card.key}')">↻ reroll</button>
+      `;
+      cardsEl.appendChild(div);
+    });
+
+    updatePrompt(false);
+  </script>
+</body>
+</html>
